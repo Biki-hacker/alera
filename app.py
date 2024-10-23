@@ -29,12 +29,7 @@ def get_transcript():
         transcript = YouTubeTranscriptApi.get_transcript(video_id)
         return jsonify(transcript)
     except Exception as e:
-        error_message = (
-            f"Could not retrieve a transcript or summary for the video {youtube_url}. "
-            "This is most likely caused by: Subtitles are disabled for this video, "
-            "or the video may not support transcripts. Please try another video."
-        )
-        return jsonify({'error': error_message}), 400
+        return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))  # Get the port from the environment variable or use 5000
