@@ -1,36 +1,33 @@
-import os
 from flask import Flask, request, jsonify
 from youtube_transcript_api import YouTubeTranscriptApi
 import re
 
 app = Flask(__name__)
 
-# Function to extract video_id from YouTube URL
 def extract_video_id(youtube_url):
-    video_id_match = re.match(r'(?:https?://)?(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)([a-zA-Z0-9_-]{11})', youtube_url)
+    video_id_match = re.search(r"(?:v=|\/)([0-9A-Za-z_-]{11}).*", youtube_url)
     if video_id_match:
         return video_id_match.group(1)
     else:
         return None
 
-@app.route('/transcript', methods=['POST'])
+@app.route('/get_transcript', methods=['POST'])
 def get_transcript():
-    data = request.get_json()
+    data = request.json
     youtube_url = data.get('youtube_url')
-
-    # Extract video_id from YouTube URL
+    
+    if not youtube_url:
+        return jsonify({'error': 'YouTube URL is required'}), 400
+    
     video_id = extract_video_id(youtube_url)
-
     if not video_id:
         return jsonify({'error': 'Invalid YouTube URL'}), 400
-
+    
     try:
-        # Use the YouTubeTranscriptApi to fetch the transcript
         transcript = YouTubeTranscriptApi.get_transcript(video_id)
-        return jsonify(transcript)
+        return jsonify(transcript), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))  # Get the port from the environment variable or use 5000
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=5000)
