@@ -23,11 +23,8 @@ def get_transcript():
     if not video_id:
         return jsonify({'error': 'Invalid YouTube URL'}), 400
     
-    try:
-        transcript = YouTubeTranscriptApi.get_transcript(video_id)
+    transcript = YouTubeTranscriptApi.get_transcript(video_id)
         return jsonify(transcript), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
